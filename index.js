@@ -21,11 +21,13 @@ const CLIENTS = {
     access_token: process.env.INSTAGRAM_ACCESS_TOKEN
   }
 };
+
 console.log('ENV CHECK:', {
   flowise_url: process.env.FLOWISE_URL,
   chatflow_id: process.env.CHATFLOW_ID,
   whatsapp_token: process.env.WHATSAPP_ACCESS_TOKEN ? 'SET' : 'MISSING'
 });
+
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "my_secret_verify_token";
 
 app.get('/webhook', (req, res) => {
@@ -128,7 +130,5 @@ async function callFlowise(client, message, userId) {
   return data.text || "Sorry, I could not process that.";
 }
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Bot server running on port ${PORT}`));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Bot server running on port ${PORT}`));
