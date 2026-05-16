@@ -113,7 +113,8 @@ async function sendInstagramReply(client, recipientId, message) {
   });
 }
 
-async function callFlowise(client, message, userId) {
+async function callFlowise(client, message, userId) { 
+  console.log('Calling Flowise with sessionId:', client.session_prefix + userId);
   const response = await fetch(`${client.flowise_url}/api/v1/prediction/${client.chatflow_id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
