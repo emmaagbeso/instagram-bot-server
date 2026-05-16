@@ -1,32 +1,28 @@
-"1021390397733796": {
-
-    name: "Client Name",
-
-    platform: "whatsapp",
-
-    flowise_url: "https://flowise-production-d6fa.up.railway.app",
-
-    chatflow_id: "2cb7f561-35df-4b81-b3fa-e684ce2883db",
-
-    session_prefix: "client_whatsapp_",
-
-  access_token: process.env.WHATSAPP_ACCESS_TOKEN  // ✅
 const express = require('express');
 const app = express();
 app.use(express.json());
 
 const CLIENTS = {
+  "1021390397733796": {
+    name: "Client Name",
+    platform: "whatsapp",
+    phone_number_id: "1021390397733796",
+    flowise_url: process.env.FLOWISE_URL,
+    chatflow_id: process.env.CHATFLOW_ID,
+    session_prefix: "client_whatsapp_",
+    access_token: process.env.WHATSAPP_ACCESS_TOKEN
+  },
   "17841464199929969": {
     name: "Chicken Republic",
     platform: "instagram",
-    flowise_url: "https://flowise-production-d6fa.up.railway.app",
-    chatflow_id: "2cb7f561-35df-4b81-b3fa-e684ce2883db",
+    flowise_url: process.env.FLOWISE_URL,
+    chatflow_id: process.env.CHATFLOW_ID,
     session_prefix: "chicken_republic_",
-    access_token: "IGAAN7UchiNvNBZAGEyZAnZAiRlhHNExhQU45NFFzWXpaYUtpVHlLbWF5UUpOU19uRnl6TUstd21FX0tPcklMZAkVFbU1sd3lsV1lRbUMyM3lZAWVZAjWjRSdTJDU1NGQ0J5YnRrb204V0dWUFJlSF8tczhxa0RjR2RDSVhEaHhGQlJJNAZDZD"
-  },
+    access_token: process.env.INSTAGRAM_ACCESS_TOKEN
+  }
 };
 
-const VERIFY_TOKEN = "my_secret_verify_token";
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "my_secret_verify_token";
 
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
@@ -58,7 +54,7 @@ app.post('/webhook', async (req, res) => {
         const botReply = await callFlowise(client, userMessage, senderId);
         await sendInstagramReply(client, senderId, botReply);
       } catch (err) {
-        console.error(`Error:`, err.message);
+        console.error(`Instagram Error:`, err.message);
       }
     }
   }
@@ -99,16 +95,6 @@ async function sendWhatsAppReply(client, recipientId, message) {
   });
 }
 
-async function callFlowise(client, message, userId) {
-  const response = await fetch(`${client.flowise_url}/api/v1/prediction/${client.chatflow_id}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question: message, sessionId: client.session_prefix + userId })
-  });
-  const data = await response.json();
-  return data.text || "Sorry, I could not process that.";
-}
-
 async function sendInstagramReply(client, recipientId, message) {
   await fetch(`https://graph.facebook.com/v19.0/me/messages`, {
     method: 'POST',
@@ -121,6 +107,19 @@ async function sendInstagramReply(client, recipientId, message) {
       message: { text: message }
     })
   });
+}
+
+async function callFlowise(client, message, userId) {
+  const response = await fetch(`${client.flowise_url}/api/v1/prediction/${client.chatflow_id}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      question: message,
+      sessionId: client.session_prefix + userId
+    })
+  });
+  const data = await response.json();
+  return data.text || "Sorry, I could not process that.";
 }
 
 const PORT = process.env.PORT || 3000;
