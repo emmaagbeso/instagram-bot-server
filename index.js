@@ -1,3 +1,18 @@
+"1021390397733796": {
+
+    name: "Client Name",
+
+    platform: "whatsapp",
+
+    flowise_url: "https://flowise-production-d6fa.up.railway.app",
+
+    chatflow_id: "2cb7f561-35df-4b81-b3fa-e684ce2883db",
+
+    session_prefix: "client_whatsapp_",
+
+    access_token: "EAAXcaI1U9QMBRSC1w6yh9Ouq3alH54LNlQTi95oQZACiOxbZB9RJ6c9EsYhtArFLpGxnoh67g0UAnltloaZAAIwGaNNt3f1KP2V99KIw8Wh3FcmzWp0iThiiSQm44zUQFFWdUFBBXqMJ6fKkQHeHRgObmZAib4iEnZAq7fmkBSG5KcBROyDZCxTDsmUcJT4uS3x2hRLyFzSs9ny2JhxZBckJqwy25uXLKjnDk5oo4asmK10tlZAfFBdgwSTqG3ZBSTvYskOEhCTLQnUll4d9HZBWCtfdjC"
+
+  },
 const express = require('express');
 const app = express();
 app.use(express.json());
