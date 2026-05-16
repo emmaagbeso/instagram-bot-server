@@ -1,3 +1,6 @@
+I can see the problem — the line numbers got pasted into the code. Here's the clean complete file — replace everything in GitHub with this:
+
+```js
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -85,23 +88,22 @@ app.post('/webhook', async (req, res) => {
     }
   }
 });
+
 app.post('/twilio-webhook', async (req, res) => {
-89    const userMessage = req.body.Body;
-90    const senderId = req.body.From.replace('whatsapp:', '');
-91    
-92    const client = Object.values(CLIENTS).find(c => c.platform === 'whatsapp');
-93    if (!client) return res.sendStatus(404);
-94  
-95    try {
-96      const botReply = await callFlowise(client, userMessage, senderId);
-97      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-98      <Response><Message>${botReply}</Message></Response>`;
-99      res.type('text/xml').send(twiml);
-100   } catch (err) {
-101     console.error('Twilio Error:', err.message);
-102     res.sendStatus(500);
-103   }
-104 });
+  const userMessage = req.body.Body;
+  const senderId = req.body.From.replace('whatsapp:', '');
+  const client = Object.values(CLIENTS).find(c => c.platform === 'whatsapp');
+  if (!client) return res.sendStatus(404);
+  try {
+    const botReply = await callFlowise(client, userMessage, senderId);
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${botReply}</Message></Response>`;
+    res.type('text/xml').send(twiml);
+  } catch (err) {
+    console.error('Twilio Error:', err.message);
+    res.sendStatus(500);
+  }
+});
+
 async function sendWhatsAppReply(client, recipientId, message) {
   await fetch(`https://graph.facebook.com/v19.0/${client.phone_number_id}/messages`, {
     method: 'POST',
@@ -148,3 +150,4 @@ async function callFlowise(client, message, userId) {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Bot server running on port ${PORT}`));
+```
