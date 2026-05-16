@@ -113,7 +113,7 @@ async function sendInstagramReply(client, recipientId, message) {
   });
 }
 
-async function callFlowise(client, message, userId) { 
+async function callFlowise(client, message, userId) {
   console.log('Calling Flowise with sessionId:', client.session_prefix + userId);
   const response = await fetch(`${client.flowise_url}/api/v1/prediction/${client.chatflow_id}`, {
     method: 'POST',
@@ -124,8 +124,11 @@ async function callFlowise(client, message, userId) {
     })
   });
   const data = await response.json();
+  console.log('Flowise response:', JSON.stringify(data));
   return data.text || "Sorry, I could not process that.";
 }
 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Bot server running on port ${PORT}`));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Bot server running on port ${PORT}`));
