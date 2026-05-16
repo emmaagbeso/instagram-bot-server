@@ -44,23 +44,62 @@ app.get('/webhook', (req, res) => {
 app.post('/webhook', async (req, res) => {
   const body = req.body;
   res.sendStatus(200);
-  for (const entry of body.entry || []) {
-    const pageId = entry.id;
-    const client = CLIENTS[pageId];
-    if (!client) continue;
-    const messaging = entry.messaging?.[0];
-    if (!messaging || !messaging.message || messaging.message.is_echo) continue;
-    const senderId = messaging.sender.id;
-    const userMessage = messaging.message.text;
-    if (!userMessage) continue;
-    try {
-      const botReply = await callFlowise(client, userMessage, senderId);
-      await sendInstagramReply(client, senderId, botReply);
-    } catch (err) {
-      console.error(`Error:`, err.message);
+
+  // Instagram
+  if (body.object === 'instagram') {
+    for (const entry of body.entry || []) {
+      const pageId = entry.id;
+      const client = CLIENTS[pageId];
+      if (!client) continue;
+      const messaging = entry.messaging?.[0];
+      if (!messaging || !messaging.message || messaging.message.is_echo) continue;
+      const senderId = messaging.sender.id;
+      const userMessage = messaging.message.text;
+      if (!userMessage) continue;
+      try {
+        const botReply = await callFlowise(client, userMessage, senderId);
+        await sendInstagramReply(client, senderId, botReply);
+      } catch (err) {
+        console.error(`Error:`, err.message);
+      }
+    }
+  }
+
+  // WhatsApp
+  if (body.object === 'whatsapp_business_account') {
+    for (const entry of body.entry || []) {
+      const changes = entry.changes?.[0];
+      const phoneNumberId = changes?.value?.metadata?.phone_number_id;
+      const client = CLIENTS[phoneNumberId];
+      if (!client) continue;
+      const message = changes?.value?.messages?.[0];
+      if (!message || message.type !== 'text') continue;
+      const senderId = message.from;
+      const userMessage = message.text.body;
+      try {
+        const botReply = await callFlowise(client, userMessage, senderId);
+        await sendWhatsAppReply(client, senderId, botReply);
+      } catch (err) {
+        console.error(`WhatsApp Error:`, err.message);
+      }
     }
   }
 });
+
+async function sendWhatsAppReply(client, recipientId, message) {
+  await fetch(`https://graph.facebook.com/v19.0/${client.phone_number_id}/messages`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${client.access_token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      messaging_product: 'whatsapp',
+      to: recipientId,
+      text: { body: message }
+    })
+  });
+}
 
 async function callFlowise(client, message, userId) {
   const response = await fetch(`${client.flowise_url}/api/v1/prediction/${client.chatflow_id}`, {
