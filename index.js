@@ -1,6 +1,3 @@
-I can see the problem — the line numbers got pasted into the code. Here's the clean complete file — replace everything in GitHub with this:
-
-```js
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -48,7 +45,6 @@ app.post('/webhook', async (req, res) => {
   const body = req.body;
   res.sendStatus(200);
 
-  // Instagram
   if (body.object === 'instagram') {
     for (const entry of body.entry || []) {
       const pageId = entry.id;
@@ -68,7 +64,6 @@ app.post('/webhook', async (req, res) => {
     }
   }
 
-  // WhatsApp
   if (body.object === 'whatsapp_business_account') {
     for (const entry of body.entry || []) {
       const changes = entry.changes?.[0];
@@ -150,4 +145,3 @@ async function callFlowise(client, message, userId) {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Bot server running on port ${PORT}`));
-```
