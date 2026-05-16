@@ -85,7 +85,23 @@ app.post('/webhook', async (req, res) => {
     }
   }
 });
-
+app.post('/twilio-webhook', async (req, res) => {
+89    const userMessage = req.body.Body;
+90    const senderId = req.body.From.replace('whatsapp:', '');
+91    
+92    const client = Object.values(CLIENTS).find(c => c.platform === 'whatsapp');
+93    if (!client) return res.sendStatus(404);
+94  
+95    try {
+96      const botReply = await callFlowise(client, userMessage, senderId);
+97      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+98      <Response><Message>${botReply}</Message></Response>`;
+99      res.type('text/xml').send(twiml);
+100   } catch (err) {
+101     console.error('Twilio Error:', err.message);
+102     res.sendStatus(500);
+103   }
+104 });
 async function sendWhatsAppReply(client, recipientId, message) {
   await fetch(`https://graph.facebook.com/v19.0/${client.phone_number_id}/messages`, {
     method: 'POST',
